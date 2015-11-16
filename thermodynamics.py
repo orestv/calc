@@ -3,6 +3,7 @@
 import cmath
 
 from errors import CalculationError
+from params import Params
 
 beta = {
     1: 0.,
@@ -14,6 +15,15 @@ omega = 0.
 k_0 = 0.
 
 H_0 = 0.
+
+
+class H_Calculator(object):
+    params = None
+
+    def __init__(self, params):
+        super().__init__()
+        self.params = params
+
 
 def H_z(n, r, t):
     return sum(
