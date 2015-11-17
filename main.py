@@ -37,7 +37,7 @@ class MaterialPicker(qw.QWidget):
         material_properties = params.MaterialProperties(material_code)
         return material_properties
 
-    def _material_index_changed(self, material_index):
+    def _material_index_changed(self, _):
         self.material_selected.emit(self.selected_material)
 
 
@@ -55,6 +55,12 @@ class MaterialProperty(qw.QWidget):
         self.lbl_title = qw.QLabel()
         self.lbl_value = qw.QLabel()
         self.lbl_unit = qw.QLabel()
+        self.lbl_unit.setAlignment(qc.Qt.AlignRight)
+        self.lbl_unit.setMinimumWidth(50)
+
+        self.lbl_title.setSizePolicy(qw.QSizePolicy.MinimumExpanding, qw.QSizePolicy.Preferred)
+        self.lbl_value.setSizePolicy(qw.QSizePolicy.Preferred, qw.QSizePolicy.Preferred)
+        self.lbl_unit.setSizePolicy(qw.QSizePolicy.Preferred, qw.QSizePolicy.Preferred)
 
         self.lbl_title.setText(title)
         self.lbl_unit.setText(unit)
@@ -62,9 +68,9 @@ class MaterialProperty(qw.QWidget):
         layout = qw.QHBoxLayout()
         self.setLayout(layout)
 
-        layout.addWidget(self.lbl_title, 1)
-        layout.addWidget(self.lbl_value, 1, qc.Qt.AlignLeft)
-        layout.addWidget(self.lbl_unit, 0.1)
+        layout.addWidget(self.lbl_title)
+        layout.addWidget(self.lbl_value)
+        layout.addWidget(self.lbl_unit)
 
     def set_value(self, value):
         s_value = self.fmt.format(value)

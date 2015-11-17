@@ -27,7 +27,7 @@ class MaterialProperties(object):
             'lambda': 0.406 * (10 ** 3),
             'E': 0.129 * (10 ** 12),
             'alpha': 0.178 * (10 ** -4),
-            'rho': 78900,
+            'rho': 8900,
             'sigma_t': 70,
         },
         ALUMINIUM: {
