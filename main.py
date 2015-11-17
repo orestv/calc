@@ -62,10 +62,9 @@ class MaterialProperty(qw.QWidget):
         layout = qw.QHBoxLayout()
         self.setLayout(layout)
 
-        layout.addWidget(self.lbl_title)
-        layout.addStretch()
-        layout.addWidget(self.lbl_value)
-        layout.addWidget(self.lbl_unit)
+        layout.addWidget(self.lbl_title, 1)
+        layout.addWidget(self.lbl_value, 1, qc.Qt.AlignLeft)
+        layout.addWidget(self.lbl_unit, 0.1)
 
     def set_value(self, value):
         s_value = self.fmt.format(value)
@@ -76,9 +75,17 @@ class MaterialProperties(qw.QWidget):
     def __init__(self):
         super(MaterialProperties, self).__init__()
 
-        self.sigma = MaterialProperty(u'К-т електропровідності σ', unit=u'1/Ом * м')
+        self.sigma = MaterialProperty(u'К-т електропровідності σ', unit=u'1/Ом·м')
         self.mu = MaterialProperty(u'Магнітна проникливість μ', unit=u'Гн/м')
         self.nu = MaterialProperty(u'К-т Пуассона υ', fmt='{:.3f}')
+
+        self.k = MaterialProperty(u'К-т температуропровідності υ', unit=u'м²/с')
+        self.lambda_ = MaterialProperty(u'К-т теплопровідності υ', unit=u'Вт/(м·К)')
+        self.E = MaterialProperty(u'Модуль Юнга υ', unit=u'Н/м²')
+
+        self.alpha = MaterialProperty(u'К-т лінійного розширення υ', unit=u'1/К')
+        self.rho = MaterialProperty(u'Густина υ', fmt='{:d}', unit=u'кг/м³')
+        self.sigma_t = MaterialProperty(u'Границя текучості υ', fmt='{:d}', unit=u'МПа')
 
         self.init_ui()
 
@@ -90,11 +97,26 @@ class MaterialProperties(qw.QWidget):
         layout.addWidget(self.mu)
         layout.addWidget(self.nu)
 
+        layout.addWidget(self.k)
+        layout.addWidget(self.lambda_)
+        layout.addWidget(self.E)
+
+        layout.addWidget(self.alpha)
+        layout.addWidget(self.rho)
+        layout.addWidget(self.sigma_t)
+
     def update_widgets(self, material_properties):
         print('Updating material properties to ' + material_properties.material_type)
         self.sigma.set_value(material_properties['sigma'])
         self.mu.set_value(material_properties['mu'])
         self.nu.set_value(material_properties['nu'])
+
+        self.k.set_value(material_properties['k'])
+        self.lambda_.set_value(material_properties['lambda'])
+        self.E.set_value(material_properties['E'])
+        self.alpha.set_value(material_properties['alpha'])
+        self.rho.set_value(material_properties['rho'])
+        self.sigma_t.set_value(material_properties['sigma_t'])
 
     def set_material_properties(self, material_properties):
         self.update_widgets(material_properties)
