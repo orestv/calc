@@ -7,6 +7,7 @@ from PyQt5 import QtCore as qc
 from PyQt5 import QtWidgets as qw
 
 import params
+import thermodynamics
 
 
 class MaterialPicker(qw.QWidget):
@@ -213,7 +214,7 @@ class UI(qw.QWidget):
         material_properties = self.material_panel.material
         calculation_parametrs = self.calculation_parameters.parameters
 
-
+        calculator = thermodynamics.H_Calculator(calculation_parametrs, material_properties)
 
 
 if __name__ == '__main__':

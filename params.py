@@ -57,6 +57,7 @@ class CalculationParameters(object):
     beta_1 = None
     beta_2 = None
     k_0 = 4
+    omega = 628000
 
     def __init__(self, t_i):
         self.t_i = t_i
