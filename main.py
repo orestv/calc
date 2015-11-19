@@ -128,19 +128,42 @@ class MaterialProperties(qw.QWidget):
         self.update_widgets(material_properties)
 
 
-class UI(qw.QWidget):
+class MaterialPanel(qw.QWidget):
     material_picker = None
     material_properties = None
+    
+    def __init__(self):
+        super(MaterialPanel, self).__init__()
+        self.material_picker = MaterialPicker()
+        self.material_properties = MaterialProperties()
+
+        self.init_ui()
+
+    def init_ui(self):
+        layout = qw.QVBoxLayout()
+        self.setLayout(layout)
+
+        layout.addWidget(self.material_picker)
+        layout.addWidget(self.material_properties)
+
+        self.material_picker.material_selected.connect(self.material_properties.set_material_properties)
+        self.material_properties.set_material_properties(self.material_picker.selected_material)
+
+    @property
+    def material(self):
+        return self.material_picker.selected_material
+
+
+class UI(qw.QWidget):
+    # material_picker = None
+    # material_properties = None
+    material_panel = None
     button_run = None
 
     def __init__(self):
         super(UI, self).__init__()
-        self.material_picker = MaterialPicker()
-        self.material_properties = MaterialProperties()
+        self.material_panel = MaterialPanel()
         self.button_run = qw.QPushButton(text=u'Обчислити')
-
-        self.material_picker.material_selected.connect(self.material_properties.set_material_properties)
-        self.material_properties.set_material_properties(self.material_picker.selected_material)
 
         self.init_ui()
 
@@ -150,8 +173,7 @@ class UI(qw.QWidget):
 
         self.setWindowTitle(u'Параметри')
 
-        layout.addWidget(self.material_picker)
-        layout.addWidget(self.material_properties)
+        layout.addWidget(self.material_panel)
         layout.addWidget(self.button_run)
 
 
