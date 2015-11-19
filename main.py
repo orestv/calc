@@ -154,15 +154,45 @@ class MaterialPanel(qw.QWidget):
         return self.material_picker.selected_material
 
 
+class CalculationParameters(qw.QWidget):
+    t_label = None
+    t_input = None
+
+    def __init__(self):
+        super(CalculationParameters, self).__init__()
+
+        self.t_label = qw.QLabel(u't_i')
+        self.t_input = qw.QDoubleSpinBox()
+
+        self.init_ui()
+
+    def init_ui(self):
+        layout = qw.QHBoxLayout()
+        self.setLayout(layout)
+
+        self.t_input.setSuffix(u"c")
+        self.t_input.setDecimals(4)
+        self.t_input.setMinimum(0.0001)
+        self.t_input.setSingleStep(0.0001)
+        self.t_input.setValue(0.0001)
+
+        layout.addWidget(self.t_label)
+        layout.addWidget(self.t_input)
+
+    @property
+    def parameters(self):
+        return params.CalculationParameters(self.t_input.value())
+
+
 class UI(qw.QWidget):
-    # material_picker = None
-    # material_properties = None
     material_panel = None
+    calculation_parameters = None
     button_run = None
 
     def __init__(self):
         super(UI, self).__init__()
         self.material_panel = MaterialPanel()
+        self.calculation_parameters = CalculationParameters()
         self.button_run = qw.QPushButton(text=u'Обчислити')
 
         self.init_ui()
@@ -173,8 +203,17 @@ class UI(qw.QWidget):
 
         self.setWindowTitle(u'Параметри')
 
+        layout.addWidget(self.calculation_parameters)
         layout.addWidget(self.material_panel)
         layout.addWidget(self.button_run)
+
+        self.button_run.clicked.connect(self.calculate)
+
+    def calculate(self):
+        material_properties = self.material_panel.material
+        calculation_parametrs = self.calculation_parameters.parameters
+
+
 
 
 if __name__ == '__main__':

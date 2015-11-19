@@ -50,6 +50,16 @@ class MaterialProperties(object):
         return self.data[self.material_type][item]
 
 
-
 class CalculationParameters(object):
-    impulse_duration = None
+    H_0 = 1
+    t_i = None
+    r = (0.008, 0.009, 0.01)
+    beta_1 = None
+    beta_2 = None
+    k_0 = 4
+
+    def __init__(self, t_i):
+        self.t_i = t_i
+        self.beta_1 = 6.9 / t_i
+        self.beta_2 = 2 * self.beta_1
+

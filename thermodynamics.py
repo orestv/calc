@@ -18,11 +18,13 @@ H_0 = 0.
 
 
 class H_Calculator(object):
-    params = None
+    parm = None
+    prop = None
 
-    def __init__(self, params):
+    def __init__(self, calculation_parameters, material_properties):
         super().__init__()
-        self.params = params
+        self.parm = calculation_parameters
+        self.prop = material_properties
 
 
 def H_z(n, r, t):
