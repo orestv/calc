@@ -3,8 +3,10 @@
 
 import sys
 
-from PyQt5 import QtCore as qc
-from PyQt5 import QtWidgets as qw
+from PyQt4 import QtCore as qc
+from PyQt4 import QtGui as qw
+
+import pyqtgraph
 
 import params
 import thermodynamics
@@ -189,32 +191,56 @@ class UI(qw.QWidget):
     material_panel = None
     calculation_parameters = None
     button_run = None
+    plot_widget = None
 
     def __init__(self):
         super(UI, self).__init__()
         self.material_panel = MaterialPanel()
         self.calculation_parameters = CalculationParameters()
         self.button_run = qw.QPushButton(text=u'Обчислити')
+        self.plot_widget = pyqtgraph.PlotWidget()
 
         self.init_ui()
 
     def init_ui(self):
-        layout = qw.QVBoxLayout()
+        layout = qw.QHBoxLayout()
         self.setLayout(layout)
 
-        self.setWindowTitle(u'Параметри')
+        self.plot_widget.setBackgroundBrush(qw.QBrush(qc.Qt.white))
 
-        layout.addWidget(self.calculation_parameters)
-        layout.addWidget(self.material_panel)
-        layout.addWidget(self.button_run)
+        column_left = qw.QVBoxLayout()
+
+        column_left.addWidget(self.calculation_parameters)
+        column_left.addWidget(self.material_panel)
+        column_left.addWidget(self.button_run)
+
+        layout.addLayout(column_left)
+        layout.addWidget(self.plot_widget)
 
         self.button_run.clicked.connect(self.calculate)
+
+        self.setWindowTitle(u'Параметри')
 
     def calculate(self):
         material_properties = self.material_panel.material
         calculation_parametrs = self.calculation_parameters.parameters
 
         calculator = thermodynamics.H_Calculator(calculation_parametrs, material_properties)
+
+        r = calculation_parametrs.r[0]
+
+        delta = (calculation_parametrs.r[2] - calculation_parametrs.r[0]) / 100.
+
+        x, y = [], []
+
+        while r < calculation_parametrs.r[2]:
+            h = calculator.H(0, r, calculation_parametrs.t_i / 3)
+            y.append(h.real)
+            x.append(r)
+            r += delta
+
+        plot = self.plot_widget.plot()
+        plot.setData(y=y, x=x)
 
 
 if __name__ == '__main__':
