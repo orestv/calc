@@ -112,8 +112,20 @@ class H_Calculator(object):
 
     def p(self, k):
         assert k in (1, 2)
-        # todo: implement
-        return 1.
+
+        p1, p2 = self.solve_quadratic(1,
+                                      -(self.d(1) + self.d(6)),
+                                      self.d(1) * self.d(6) - self.d(2) * self.d(5))
+        if k == 1:
+            return p1
+        elif k == 2:
+            return p2
+
+    def solve_quadratic(self, a, b, c):
+        D = b**2 - 4*a*c
+        x1 = (-b - cmath.sqrt(D)) / (2*a)
+        x2 = (-b + cmath.sqrt(D)) / (2*a)
+        return x1, x2
 
     def alpha(self, i, n):
         # todo: implement
