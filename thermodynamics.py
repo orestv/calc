@@ -3,7 +3,7 @@
 import cmath
 
 from errors import CalculationError
-from params import MaterialProperties
+import params
 
 
 class H_Calculator(object):
@@ -11,6 +11,14 @@ class H_Calculator(object):
     prop = None
 
     def __init__(self, calculation_parameters, material_properties):
+        """
+
+        :param calculation_parameters:
+        :type calculation_parameters: params.CalculationParameters
+        :param material_properties:
+        :type material_properties: params.MaterialProperties
+        :return:
+        """
         super().__init__()
         self.parm = calculation_parameters
         self.prop = material_properties
@@ -143,3 +151,97 @@ class H_Calculator(object):
     def a(self, i, j, n):
         # todo: implement
         return 1.
+
+
+class QF_Calculator(object):
+    h = None
+    parm = None
+    prop = None
+
+    alphas = None
+    Cs = None
+
+    def __init__(self, h_calculator):
+        """
+
+        :param h_calculator:
+        :type h_calculator: H_Calculator
+        :return:
+        """
+        self.h = h_calculator
+        self.parm = self.h.parm
+        self.prop = self.h.prop
+
+        self.alphas= {
+            1: -2 * (self.parm.beta_1 - self.parm.omega * 1j),
+            2: -1 * (self.h.parm.beta_1 + self.h.parm.beta_2 - 2j*self.parm.omega),
+            3: -2 * self.parm.beta_1,
+            4: -1 * (self.parm.beta_1 + self.parm.beta_2),
+            5: -1 * (self.parm.beta_1 - 1j*self.parm.omega - self.h.p(1)),
+            6: -1 * (self.parm.beta_1 - 1j*self.parm.omega - self.h.p(2)),
+            7: -2 * (self.parm.beta_2 - 1j*self.parm.omega),
+            8: -2 * self.parm.beta_2,
+            9: -1 * (self.parm.beta_2 - 1j*self.parm.omega),
+            10: -1 * (self.parm.beta_2 - 1j*self.parm.omega - self.h.p(2)),
+            11: -2 * (self.parm.beta_1 + 1j*self.parm.omega),
+            12: -1 * (self.parm.beta_1 + self.parm.beta_2 + 2j*self.parm.omega),
+            13: -1 * (self.parm.beta_1 + 1j*self.parm.omega - self.h.p(1)),
+            14: -1 * (self.parm.beta_1 + 1j*self.parm.omega - self.h.p(2)),
+            15: -1 * (self.parm.beta_2 + 1j*self.parm.omega),
+            16: -1 * (self.parm.beta_2 + 1j*self.parm.omega - self.h.p(1)),
+            17: -1 * (self.parm.beta_2 + 1j*self.parm.omega - self.h.p(2)),
+            18: 2 * self.h.p(1),
+            19: self.h.p(1) + self.h.p(2),
+            20: 2 * self.h.p(2),
+        }
+
+    def alpha(self, i):
+        assert i in range(1, 21)
+        return self.alphas[i]
+
+    def C(self, l, i, j, n):
+        B = self.h.B
+
+        if l == 1:
+            return B(i, 1, n) * B(j, 1, n)
+        elif l == 2:
+            return B(i, 1, n) * B(j, 2, n) + B(i, 2, n) * B(j, 1, n)
+        elif l == 3:
+            return B(i, 1, n) * B(j, 3, n) + B(i, 3, n) * B(j, 1, n)
+        elif l == 4:
+            return B(i, 1, n) * B(j, 4, n) + B(i, 4, n) * B(j, 1, n) + B(i, 2, n) * B(j, 3, n) + B(i, 3, n) * B(j, 2, n)
+        elif l == 5:
+            return B(i, 1, n) * B(j, 5, n) + B(i, 5, n) * B(j, 1, n)
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+        elif l == 2:
+            pass
+
