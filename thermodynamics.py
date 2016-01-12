@@ -200,48 +200,46 @@ class QF_Calculator(object):
         return self.alphas[i]
 
     def C(self, l, i, j, n):
-        B = self.h.B
+        B = lambda _i, _j: self.h.B(_i, _j, n)
 
         if l == 1:
-            return B(i, 1, n) * B(j, 1, n)
+            return B(i, 1) * B(j, 1)
         elif l == 2:
-            return B(i, 1, n) * B(j, 2, n) + B(i, 2, n) * B(j, 1, n)
+            return B(i, 1) * B(j, 2) + B(i, 2) * B(j, 1)
         elif l == 3:
-            return B(i, 1, n) * B(j, 3, n) + B(i, 3, n) * B(j, 1, n)
+            return B(i, 1) * B(j, 3) + B(i, 3) * B(j, 1)
         elif l == 4:
-            return B(i, 1, n) * B(j, 4, n) + B(i, 4, n) * B(j, 1, n) + B(i, 2, n) * B(j, 3, n) + B(i, 3, n) * B(j, 2, n)
+            return B(i, 1) * B(j, 4) + B(i, 4) * B(j, 1) + B(i, 2) * B(j, 3) + B(i, 3) * B(j, 2)
         elif l == 5:
-            return B(i, 1, n) * B(j, 5, n) + B(i, 5, n) * B(j, 1, n)
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
-        elif l == 2:
-            pass
+            return B(i, 1) * B(j, 5) + B(i, 5) * B(j, 1)
+        elif l == 6:
+            return B(i, 1) * B(j, 6) + B(i, 6) * B(j, 1)
+        elif l == 7:
+            return B(i, 2) * B(j, 2)
+        elif l == 8:
+            return B(i, 2) * B(j, 4) + B(i, 4) * B(j, 2)
+        elif l == 9:
+            return B(i, 2) * B(j, 5) + B(i, 5) * B(j, 2)
+        elif l == 10:
+            return B(i, 2) * B(j, 6) + B(i, 6) * B(j, 2)
+        elif l == 11:
+            return B(i, 3) * B(j, 3)
+        elif l == 12:
+            return B(i, 3) * B(j, 4) + B(i, 4) * B(j, 3)
+        elif l == 13:
+            return B(i, 3) * B(j, 5) + B(i, 5) * B(j, 3)
+        elif l == 14:
+            return B(i, 3) * B(j, 6) + B(i, 6) * B(j, 3)
+        elif l == 15:
+            return B(i, 4) * B(j, 4)
+        elif l == 16:
+            return B(i, 4) * B(j, 5) + B(i, 5) * B(j, 4)
+        elif l == 17:
+            return B(i, 4) * B(j, 6) + B(i, 6) * B(j, 4)
+        elif l == 18:
+            return B(i, 5) * B(j, 5)
+        elif l == 19:
+            return B(i, 5) * B(j, 6) + B(i, 6) * B(j, 5)
+        elif l == 20:
+            return B(i, 6) * B(j, 6)
 
