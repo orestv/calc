@@ -188,14 +188,16 @@ class CalculationParameters(qw.QWidget):
 
 
 class UI(qw.QWidget):
-    material_panel = None
+    material_panel_1 = None
+    material_panel_2 = None
     calculation_parameters = None
     button_run = None
     plot_widget = None
 
     def __init__(self):
         super(UI, self).__init__()
-        self.material_panel = MaterialPanel()
+        self.material_panel_1 = MaterialPanel()
+        self.material_panel_2 = MaterialPanel()
         self.calculation_parameters = CalculationParameters()
         self.button_run = qw.QPushButton(text=u'Обчислити')
         self.plot_widget = pyqtgraph.PlotWidget()
@@ -211,7 +213,8 @@ class UI(qw.QWidget):
         column_left = qw.QVBoxLayout()
 
         column_left.addWidget(self.calculation_parameters)
-        column_left.addWidget(self.material_panel)
+        column_left.addWidget(self.material_panel_1)
+        column_left.addWidget(self.material_panel_2)
         column_left.addWidget(self.button_run)
 
         layout.addLayout(column_left)
@@ -222,10 +225,11 @@ class UI(qw.QWidget):
         self.setWindowTitle(u'Параметри')
 
     def calculate(self):
-        material_properties = self.material_panel.material
+        material_properties_1 = self.material_panel_1.material
+        material_properties_2 = self.material_panel_2.material
         calculation_parametrs = self.calculation_parameters.parameters
 
-        calculator = thermodynamics.H_Calculator(calculation_parametrs, material_properties)
+        calculator = thermodynamics.H_Calculator(calculation_parametrs)
 
         r = calculation_parametrs.r[0]
 

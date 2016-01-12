@@ -7,23 +7,25 @@ import math
 from errors import CalculationError
 import params
 
+def solve_quadratic(self, a, b, c):
+        D = b**2 - 4*a*c
+        x1 = (-b - cmath.sqrt(D)) / (2*a)
+        x2 = (-b + cmath.sqrt(D)) / (2*a)
+        return x1, x2
 
 class H_Calculator(object):
     parm = None
     prop = None
 
-    def __init__(self, calculation_parameters, material_properties):
+    def __init__(self, calculation_parameters):
         """
 
         :param calculation_parameters:
         :type calculation_parameters: params.CalculationParameters
-        :param material_properties:
-        :type material_properties: params.MaterialProperties
         :return:
         """
         super().__init__()
         self.parm = calculation_parameters
-        self.prop = material_properties
 
     def H(self, n, r, t):
         return sum(
@@ -123,19 +125,13 @@ class H_Calculator(object):
     def p(self, k):
         assert k in (1, 2)
 
-        p1, p2 = self.solve_quadratic(1,
-                                      -(self.d(1) + self.d(6)),
-                                      self.d(1) * self.d(6) - self.d(2) * self.d(5))
+        p1, p2 = solve_quadratic(1,
+                                 -(self.d(1) + self.d(6)),
+                                 self.d(1) * self.d(6) - self.d(2) * self.d(5))
         if k == 1:
             return p1
         elif k == 2:
             return p2
-
-    def solve_quadratic(self, a, b, c):
-        D = b**2 - 4*a*c
-        x1 = (-b - cmath.sqrt(D)) / (2*a)
-        x2 = (-b + cmath.sqrt(D)) / (2*a)
-        return x1, x2
 
     def alpha(self, i, n):
         # todo: implement
@@ -163,7 +159,7 @@ class QF_Calculator(object):
     alphas = None
     Cs = None
 
-    def __init__(self, h_calculator):
+    def __init__(self, h_calculator, properties):
         """
 
         :param h_calculator:
@@ -172,7 +168,7 @@ class QF_Calculator(object):
         """
         self.h = h_calculator
         self.parm = self.h.parm
-        self.prop = self.h.prop
+        self.prop = properties
 
         self.alphas= {
             1: -2 * (self.parm.beta_1 - self.parm.omega * 1j),
@@ -198,7 +194,7 @@ class QF_Calculator(object):
         }
 
     def Q(self, r, t, n):
-        q = self.parm.k_0**2 * self.parm.H_0**2 / (self.prop.sigma * 4)
+        q = self.parm.k_0**2 * self.parm.H_0**2 / (self.prop[n].sigma * 4)
         q *= sum((
             i*j*self.C(l, i, j, n) * cmath.exp(self.alpha(l)*t) * math.pow(r, i+j-2)
 
@@ -210,7 +206,7 @@ class QF_Calculator(object):
         return 1
 
     def F(self, r, t, n):
-        f = - self.prop.mu * self.parm.k_0**2 * self.parm.H_0**2 / 4
+        f = - self.prop[n].mu * self.parm.k_0**2 * self.parm.H_0**2 / 4
         f *= sum((
             i * self.C(l, i, j, n) * cmath.exp(self.alpha(l) * t) * math.pow(r, i+j-1)
 
@@ -268,3 +264,63 @@ class QF_Calculator(object):
         elif l == 20:
             return B(i, 6) * B(j, 6)
 
+
+class T_Calculator(object):
+    parm = None
+    prop = None
+    qf = None
+
+    def __init__(self, qf_calculator, parameters, properties):
+        """
+        :type parameters: params.CalculationParameters
+        :param qf_calculator:
+        :type qf_calculator: QF_Calculator
+        :param properties:
+        :return:
+        """
+
+        self.qf = qf_calculator
+        self.parm = parameters
+        self.prop = properties
+
+    def T(self, r, t, n):
+        return sum((
+            self.b_f(t, p, n) * math.pow(r, p)
+
+            for p in (0, 1, 2)
+        ))
+
+    def b_f(self, t, p, n):
+        b = self.parm.k_0**2 * self.parm.H_0**2 / 4
+        b *= sum((
+            i*j*self.M(i, j, l, m, n) *
+            (cmath.exp(self.p(m)*t) - cmath.exp(self.qf.alpha(l)*t))
+                / (self.p(m) - self.qf.alpha(l))
+
+            for m in (1, 2)
+            for i in (1, 2)
+            for j in (1, 2)
+            for l in range(1, 21)
+        ))
+        return b
+
+    def M(self, i, j, l, m, n):
+        return 0
+
+    def N(self, i, j, l, k):
+        return 0
+
+    def B(self, i, j, m):
+        # todo: implement
+        return 0
+
+    def b(self, i, j, n):
+        # todo: implement
+        return 0
+
+    def p(self, m):
+        return 0
+
+    def d(self, j):
+        assert (j in range(1, 5))
+        return 0
