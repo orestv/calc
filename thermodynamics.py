@@ -7,7 +7,7 @@ import math
 from errors import CalculationError
 import params
 
-def solve_quadratic(self, a, b, c):
+def solve_quadratic(a, b, c):
         D = b**2 - 4*a*c
         x1 = (-b - cmath.sqrt(D)) / (2*a)
         x2 = (-b + cmath.sqrt(D)) / (2*a)
@@ -305,10 +305,25 @@ class T_Calculator(object):
         return b
 
     def M(self, i, j, l, m, n):
-        return 0
+        # todo: check
+        m_1 = self.b(self.p(1), 1, n) * (self.N(1, i, j, l) * self.B(1, 1, m) + self.N(2, i, j, l) * self.B(1, 2, m))
+        m_2 = self.b(self.p(2), 2, n) * (self.N(1, i, j, l) * self.B(2, 1, m) + self.N(2, i, j, l) * self.B(2, 2, m))
+        return m_1 + m_2
 
-    def N(self, i, j, l, k):
-        return 0
+    def N(self, k, i, j, l):
+        if k == 1:
+            n1 = ((self.prop[0].k + (self.parm.r[1] ** (i + j) - self.parm.r[0] ** (i + j))) * self.qf.C(i, j, l, 1) /
+                    (self.prop[0].sigma * self.prop[0]['lambda'] * (i + j)))
+            n2 = ((self.prop[1].k + (self.parm.r[2] ** (i + j) - self.parm.r[1] ** (i + j))) * self.qf.C(i, j, l, 2) /
+                    (self.prop[1].sigma * self.prop[1]['lambda'] * (i + j)))
+            return n1 + n2
+        elif k == 2:
+            n1 = ((self.prop[0].k + (self.parm.r[1] ** (i + j + 1) - self.parm.r[0] ** (i + j + 1))) * self.qf.C(i, j, l, 1) /
+                    (self.prop[0].sigma * self.prop[0]['lambda'] * (i + j + 1)))
+            n2 = ((self.prop[1].k + (self.parm.r[2] ** (i + j + 1) - self.parm.r[1] ** (i + j + 1))) * self.qf.C(i, j, l, 2) /
+                    (self.prop[1].sigma * self.prop[1]['lambda'] * (i + j + 1)))
+            return n1 + n2
+        raise Exception("N calculation failure")
 
     def B(self, i, j, m):
         # todo: implement
