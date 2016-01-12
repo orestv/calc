@@ -326,7 +326,14 @@ class T_Calculator(object):
         raise Exception("N calculation failure")
 
     def B(self, i, j, m):
-        # todo: implement
+        if (i, j) == (1, 1):
+            return (self.p(m) - self.d(4)) / (2*self.p(m) - (self.d(1) + self.d(4)))
+        elif (i, j) == (1, 2):
+            return self.d(2) / (2*self.p(m) - (self.d(1) + self.d(4)))
+        elif (i, j) == (2, 1):
+            return self.d(3) / (2*self.p(m) - (self.d(1) + self.d(4)))
+        elif (i, j) == (2, 2):
+            return (self.p(m) - self.d(1)) / (2*self.p(m) - (self.d(1) + self.d(4)))
         return 0
 
     def b(self, i, j, n):
