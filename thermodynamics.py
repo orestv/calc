@@ -2,6 +2,8 @@
 
 import cmath
 
+import math
+
 from errors import CalculationError
 import params
 
@@ -174,7 +176,7 @@ class QF_Calculator(object):
 
         self.alphas= {
             1: -2 * (self.parm.beta_1 - self.parm.omega * 1j),
-            2: -1 * (self.h.parm.beta_1 + self.h.parm.beta_2 - 2j*self.parm.omega),
+            2: -1 * (self.parm.beta_1 + self.parm.beta_2 - 2j*self.parm.omega),
             3: -2 * self.parm.beta_1,
             4: -1 * (self.parm.beta_1 + self.parm.beta_2),
             5: -1 * (self.parm.beta_1 - 1j*self.parm.omega - self.h.p(1)),
@@ -194,6 +196,29 @@ class QF_Calculator(object):
             19: self.h.p(1) + self.h.p(2),
             20: 2 * self.h.p(2),
         }
+
+    def Q(self, r, t, n):
+        q = self.parm.k_0**2 * self.parm.H_0**2 / (self.prop.sigma * 4)
+        q *= sum((
+            i*j*self.C(l, i, j, n) * cmath.exp(self.alpha(l)*t) * math.pow(r, i+j-2)
+
+            for i in (1, 2)
+            for j in (1, 2)
+            for l in range(1, 21)
+        ))
+
+        return 1
+
+    def F(self, r, t, n):
+        f = - self.prop.mu * self.parm.k_0**2 * self.parm.H_0**2 / 4
+        f *= sum((
+            i * self.C(l, i, j, n) * cmath.exp(self.alpha(l) * t) * math.pow(r, i+j-1)
+
+            for i in (1, 2)
+            for j in (1, 2)
+            for l in range(1, 21)
+        ))
+        return f
 
     def alpha(self, i):
         assert i in range(1, 21)
