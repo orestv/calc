@@ -238,7 +238,7 @@ class UI(qw.QWidget):
         x, y = [], []
 
         while r < calculation_parametrs.r[2]:
-            h = calculator.H(0, r, calculation_parametrs.t_i / 3)
+            h = calculator.H(1, r, calculation_parametrs.t_i / 3)
             y.append(h.real)
             x.append(r)
             r += delta

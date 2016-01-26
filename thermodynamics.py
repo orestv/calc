@@ -54,6 +54,7 @@ class H_Calculator(object):
         ])
 
     def a(self, i, j, n):
+
         try:
             return self._a[(i, j)]
         except KeyError:
@@ -68,7 +69,16 @@ class H_Calculator(object):
                        np.array(list(range(j))+list(range(j+1,arr.shape[1])))]
 
         m = minor(self.mat_A, i, j)
-        self._a[(i, j)] = np.linalg.det(m) / self.mat_A_det
+
+        try:
+            self._a[(i, j)] = np.linalg.det(m) / self.mat_A_det
+        except Exception as e:
+            print("Error calculating determinant")
+            print("Det " + str(i) + "/" + str(j))
+            print(self.mat_A)
+            print(m.shape)
+            print(m)
+            raise
         return self._a[(i, j)]
 
     def H(self, n, r, t):
@@ -78,6 +88,8 @@ class H_Calculator(object):
         )
 
     def f_a(self, i, n, t):
+        assert i in (0, 1, 2)
+        assert n in (1, 2)
         return (self.parm.k_0 * self.parm.H_0 / 2.) * (
             cmath.exp(-t * (self.parm.beta_1 - self.parm.omega * 1j)) * self.B(i, 1, n) +
             cmath.exp(-t * (self.parm.beta_2 - self.parm.omega * 1j)) * self.B(i, 2, n) +
@@ -88,6 +100,8 @@ class H_Calculator(object):
         )
 
     def B(self, i, j, n):
+        assert i in (0, 1, 2)
+        assert j in (1, 2, 3, 4, 5, 6)
         if j == 1:
 
             return sum(
@@ -140,28 +154,34 @@ class H_Calculator(object):
         assert False
 
     def C(self, i, k, n):
+        assert i in (0, 1, 2)
         return (self.a(i, 1, n) * (self.A11(k) + self.A12(k)) +
                 self.a(i, 2, n) * (self.A21(k) + self.A22(k)))
 
     def A(self, i, n):
+        assert i in (0, 1, 2)
         return self.a(i, 3, n) + self.a(i, 4, n)
 
     def A11(self, k):
+        assert k in (1, 2)
         top = (self.p(k) - self.d(6)) * self.d(3) + self.d(2)*self.d(7)
         bottom = 2*self.p(k) - (self.d(1) + self.d(6))
         return top / bottom
 
     def A12(self, k):
+        assert k in (1, 2)
         top = (self.p(k) - self.d(6)) * self.d(4) + self.d(2)*self.d(8)
         bottom = 2 * self.p(k) - (self.d(1) + self.d(6))
         return top / bottom
 
     def A21(self, k):
+        assert k in (1, 2)
         top = (self.p(k) - self.d(1)) * self.d(7) + self.d(3)*self.d(5)
         bottom = 2*self.p(k) - self.d(1) + self.d(6)
         return top / bottom
 
     def A22(self, k):
+        assert k in (1, 2)
         top = (self.p(k) - self.d(1)) * self.d(8) + self.d(4)*self.d(5)
         bottom = 2*self.p(k) - (self.d(1) + self.d(6))
         return top / bottom
@@ -178,15 +198,23 @@ class H_Calculator(object):
             return p2
 
     def alpha(self, i, n):
-        # todo: implement
-        return 1.
+        return (self.parm.r[n]**i - self.parm.r[n-1]**i) / float(i)
 
     def d(self, j):
         # todo: implement
         if j in range(1, 5):
-            return 0.
+            layer_1 = ((self.a(1, j, 1) * self.alpha(1, 1) + 4*self.a(2, j, 1) * self.alpha(2, 1)) /
+                       (self.mat_i['sigma'] * self.mat_i['mu']))
+            layer_2 = ((self.a(1, j, 2) * self.alpha(1, 2) + 4*self.a(2, j, 2) * self.alpha(2, 2)) /
+                       (self.mat_o['sigma'] * self.mat_o['mu']))
+            return layer_1 + layer_2
         elif j in range(5, 9):
-            return 1.
+            j = j % 4 + 1
+            layer_1 = ((self.a(1, j, 1) * self.alpha(2, 1) + 4*self.a(2, j, 1) * self.alpha(3, 1)) /
+                       (self.mat_i['sigma'] * self.mat_i['mu']))
+            layer_2 = ((self.a(1, j, 2) * self.alpha(2, 2) + 4*self.a(2, j, 2) * self.alpha(3, 2)) /
+                       (self.mat_o['sigma'] * self.mat_o['mu']))
+            return layer_1 + layer_2
         else:
             raise CalculationError("Failed to calculate d({0})".format(j))
 
