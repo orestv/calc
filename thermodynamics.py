@@ -1,8 +1,9 @@
 # coding = utf-8
 
 import cmath
-
 import math
+
+import numpy as np
 
 from errors import CalculationError
 import params
@@ -21,6 +22,9 @@ class H_Calculator(object):
     mat_o = None
 
     mat_A = None
+    mat_A_det = None
+
+    _a = {}
 
     def __init__(self, calculation_parameters, material_inner, material_outer):
         """
@@ -40,14 +44,32 @@ class H_Calculator(object):
     def build_A(self):
         r = self.parm.r
         k = self.mat_i['sigma'] / self.mat_o['sigma']
-        self.mat_A = [
-            [(r[1]**2 - r[0]**2)/2., (r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[2]**2 - r[1]**2)/2., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4.],
-            [(r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[1]**5 - r[0]**5)/5., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4., (r[2]**5 - r[1]**5)/5.],
-            [1., r[0], r[0]**2, 0, 0, 0],
-            [0, 0, 0, 1, r[2], r[2]**2],
-            [1, r[1], r[1]**2, -1, -r[1], -r[1]**2],
-            [0, 1, 2*r[1], 0, -k, -2*k*r[1]],
-        ]
+        self.mat_A = np.matrix([
+            [np.float64(x) for x in [(r[1]**2 - r[0]**2)/2., (r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[2]**2 - r[1]**2)/2., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4.]],
+            [np.float64(x) for x in [(r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[1]**5 - r[0]**5)/5., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4., (r[2]**5 - r[1]**5)/5.]],
+            [np.float64(x) for x in [1., r[0], r[0]**2, 0, 0, 0]],
+            [np.float64(x) for x in [0, 0, 0, 1, r[2], r[2]**2]],
+            [np.float64(x) for x in [1, r[1], r[1]**2, -1, -r[1], -r[1]**2]],
+            [np.float64(x) for x in [0, 1, 2*r[1], 0, -k, -2*k*r[1]]],
+        ])
+
+    def a(self, i, j, n):
+        try:
+            return self._a[(i, j)]
+        except KeyError:
+            pass
+
+        if not self.mat_A_det:
+            self.mat_A_det = np.linalg.det(self.mat_A)
+
+        def minor(arr, i, j):
+            # ith row, jth column removed
+            return arr[np.array(list(range(i))+list(range(i+1,arr.shape[0])))[:,np.newaxis],
+                       np.array(list(range(j))+list(range(j+1,arr.shape[1])))]
+
+        m = minor(self.mat_A, i, j)
+        self._a[(i, j)] = np.linalg.det(m) / self.mat_A_det
+        return self._a[(i, j)]
 
     def H(self, n, r, t):
         return sum(
@@ -167,10 +189,6 @@ class H_Calculator(object):
             return 1.
         else:
             raise CalculationError("Failed to calculate d({0})".format(j))
-
-    def a(self, i, j, n):
-        # todo: implement
-        return 1.
 
 
 class QF_Calculator(object):
