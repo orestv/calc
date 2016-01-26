@@ -17,15 +17,37 @@ class H_Calculator(object):
     parm = None
     prop = None
 
-    def __init__(self, calculation_parameters):
+    mat_i = None
+    mat_o = None
+
+    mat_A = None
+
+    def __init__(self, calculation_parameters, material_inner, material_outer):
         """
 
         :param calculation_parameters:
         :type calculation_parameters: params.CalculationParameters
+        :type material_inner: params.MaterialProperties
+        :type material_outer: params.MaterialProperties
         :return:
         """
         super().__init__()
         self.parm = calculation_parameters
+        self.mat_i = material_inner
+        self.mat_o = material_outer
+        self.build_A()
+
+    def build_A(self):
+        r = self.parm.r
+        k = self.mat_i['sigma'] / self.mat_o['sigma']
+        self.mat_A = [
+            [(r[1]**2 - r[0]**2)/2., (r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[2]**2 - r[1]**2)/2., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4.],
+            [(r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[1]**5 - r[0]**5)/5., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4., (r[2]**5 - r[1]**5)/5.],
+            [1., r[0], r[0]**2, 0, 0, 0],
+            [0, 0, 0, 1, r[2], r[2]**2],
+            [1, r[1], r[1]**2, -1, -r[1], -r[1]**2],
+            [0, 1, 2*r[1], 0, -k, -2*k*r[1]],
+        ]
 
     def H(self, n, r, t):
         return sum(

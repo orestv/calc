@@ -147,7 +147,7 @@ class MaterialPanel(qw.QWidget):
         self.setLayout(layout)
 
         layout.addWidget(self.material_picker)
-        layout.addWidget(self.material_properties)
+        # layout.addWidget(self.material_properties)
 
         self.material_picker.material_selected.connect(self.material_properties.set_material_properties)
         self.material_properties.set_material_properties(self.material_picker.selected_material)
@@ -229,7 +229,7 @@ class UI(qw.QWidget):
         material_properties_2 = self.material_panel_2.material
         calculation_parametrs = self.calculation_parameters.parameters
 
-        calculator = thermodynamics.H_Calculator(calculation_parametrs)
+        calculator = thermodynamics.H_Calculator(calculation_parametrs, material_properties_1, material_properties_2)
 
         r = calculation_parametrs.r[0]
 
