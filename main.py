@@ -161,16 +161,33 @@ class CalculationParameters(qw.QWidget):
     t_label = None
     t_input = None
 
+    r0_label = None
+    r0_input = None
+
+    r1_label = None
+    r1_input = None
+
+    r2_label = None
+    r2_input = None
+
     def __init__(self):
         super(CalculationParameters, self).__init__()
 
-        self.t_label = qw.QLabel(u't_i')
+        self.t_label = qw.QLabel(u'Тривалість імпульсу')
         self.t_input = qw.QDoubleSpinBox()
+
+        self.r0_label = qw.QLabel(u'Внутрішній радіус')
+        self.r1_label = qw.QLabel(u'Радіус стику')
+        self.r2_label = qw.QLabel(u'Зовнішній радіус')
+
+        self.r0_input = qw.QDoubleSpinBox()
+        self.r1_input = qw.QDoubleSpinBox()
+        self.r2_input = qw.QDoubleSpinBox()
 
         self.init_ui()
 
     def init_ui(self):
-        layout = qw.QHBoxLayout()
+        layout = qw.QGridLayout()
         self.setLayout(layout)
 
         self.t_input.setSuffix(u"c")
@@ -179,12 +196,46 @@ class CalculationParameters(qw.QWidget):
         self.t_input.setSingleStep(0.0001)
         self.t_input.setValue(0.0001)
 
-        layout.addWidget(self.t_label)
-        layout.addWidget(self.t_input)
+        for inp in (self.r0_input, self.r1_input, self.r2_input):
+            inp.setMinimum(0.001)
+            inp.setSingleStep(0.001)
+            inp.setDecimals(3)
+            inp.setSuffix(u'м')
+
+        layout.addWidget(self.t_label, 0, 0)
+        layout.addWidget(self.t_input, 0, 1)
+
+        layout.addWidget(self.r0_label, 1, 0)
+        layout.addWidget(self.r0_input, 1, 1)
+        layout.addWidget(self.r1_label, 2, 0)
+        layout.addWidget(self.r1_input, 2, 1)
+        layout.addWidget(self.r2_label, 3, 0)
+        layout.addWidget(self.r2_input, 3, 1)
 
     @property
     def parameters(self):
         return params.CalculationParameters(self.t_input.value())
+
+
+class PlotWidget(qw.QTabWidget):
+    pw_H = None
+    pw_Q = None
+    pw_F = None
+
+    def __init__(self):
+        super(PlotWidget, self).__init__()
+        self.pw_H = pyqtgraph.PlotWidget()
+        self.pw_H.setBackgroundBrush(qw.QBrush(qc.Qt.white))
+
+        self.pw_Q = pyqtgraph.PlotWidget()
+        self.pw_Q.setBackgroundBrush(qw.QBrush(qc.Qt.white))
+
+        self.pw_F = pyqtgraph.PlotWidget()
+        self.pw_F.setBackgroundBrush(qw.QBrush(qc.Qt.white))
+
+        self.addTab(self.pw_H, u'H')
+        self.addTab(self.pw_Q, u'Q')
+        self.addTab(self.pw_F, u'F')
 
 
 class UI(qw.QWidget):
@@ -200,7 +251,8 @@ class UI(qw.QWidget):
         self.material_panel_2 = MaterialPanel()
         self.calculation_parameters = CalculationParameters()
         self.button_run = qw.QPushButton(text=u'Обчислити')
-        self.plot_widget = pyqtgraph.PlotWidget()
+        # self.plot_widget = pyqtgraph.PlotWidget()
+        self.plot_widget = PlotWidget()
 
         self.init_ui()
 
@@ -208,7 +260,7 @@ class UI(qw.QWidget):
         layout = qw.QHBoxLayout()
         self.setLayout(layout)
 
-        self.plot_widget.setBackgroundBrush(qw.QBrush(qc.Qt.white))
+        # self.plot_widget.setBackgroundBrush(qw.QBrush(qc.Qt.white))
 
         column_left = qw.QVBoxLayout()
 
