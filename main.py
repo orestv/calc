@@ -38,11 +38,13 @@ class TabulationParameters(qw.QWidget):
         self.inp_r.setDecimals(4)
         self.inp_r.setSingleStep(0.0001)
         self.inp_r.setSuffix(u'м')
+        self.inp_r.setValue(0.009)
 
         self.inp_t = qw.QDoubleSpinBox()
         self.inp_t.setDecimals(2)
         self.inp_t.setSingleStep(0.001)
         self.inp_t.setSuffix(u'с')
+        self.inp_t.setValue(0.1)
 
         layout.addWidget(self.rb_mode_r)
         layout.addWidget(self.rb_mode_t)
@@ -66,7 +68,15 @@ class TabulationParameters(qw.QWidget):
 
     @property
     def parameters(self):
-        return params.TabulationParameters(params.TabulationParameters.MODE_FIXED_TIME, 0)
+        value = 0
+        mode = None
+        if self.rb_mode_r.isChecked():
+            mode = params.TabulationParameters.MODE_FIXED_RADIUS
+            value = self.inp_r.value()
+        elif self.rb_mode_t.isChecked():
+            value = self.inp_t.value()
+            mode = params.TabulationParameters.MODE_FIXED_TIME
+        return params.TabulationParameters(mode, value)
 
 
 class MaterialPicker(qw.QWidget):
@@ -361,20 +371,34 @@ class UI(qw.QWidget):
         material_properties_1 = self.material_panel_1.material
         material_properties_2 = self.material_panel_2.material
         calculation_parametrs = self.calculation_parameters.parameters
+        tabulation_parameters = self.tabulation_parameters.parameters
 
         calculator = thermodynamics.H_Calculator(calculation_parametrs, material_properties_1, material_properties_2)
 
-        r = calculation_parametrs.r[0]
-
-        delta = (calculation_parametrs.r[2] - calculation_parametrs.r[0]) / 100.
+        DIVISION = 20
 
         x, y = [], []
+        if tabulation_parameters.mode == params.TabulationParameters.MODE_FIXED_RADIUS:
+            t_0 = 0.
+            t_1 = 2.
+            r = tabulation_parameters.value
+            delta = (t_1 - t_0) / DIVISION
 
-        while r < calculation_parametrs.r[2]:
-            h = calculator.H(1, r, calculation_parametrs.t_i / 3)
-            y.append(h.real)
-            x.append(r)
-            r += delta
+            t = t_0
+            while t < t_1:
+                h = calculator.H(1, r, t)
+                y.append(h.real)
+                x.append(r)
+                t += delta
+        else:
+            r = calculation_parametrs.r[0]
+            delta = (calculation_parametrs.r[2] - calculation_parametrs.r[0]) / DIVISION
+
+            while r < calculation_parametrs.r[2]:
+                h = calculator.H(1, r, tabulation_parameters.value)
+                y.append(h.real)
+                x.append(r)
+                r += delta
 
         plot = self.plot_widget.plot()
         plot.setData(y=y, x=x)
