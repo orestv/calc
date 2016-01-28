@@ -204,6 +204,10 @@ class CalculationParameters(qw.QWidget):
             inp.setDecimals(3)
             inp.setSuffix(u'м')
 
+        self.r0_input.setValue(0.008)
+        self.r1_input.setValue(0.009)
+        self.r2_input.setValue(0.01)
+
         layout.addWidget(self.t_label, 0, 0)
         layout.addWidget(self.t_input, 0, 1)
 
@@ -216,7 +220,9 @@ class CalculationParameters(qw.QWidget):
 
     @property
     def parameters(self):
-        return params.CalculationParameters(self.t_input.value())
+        calculation_parameters = params.CalculationParameters(self.t_input.value())
+        calculation_parameters.r = tuple(map(float, (self.r0_input.value(), self.r1_input.value(), self.r2_input.value())))
+        return calculation_parameters
 
 
 class PlotWidget(qw.QTabWidget):
