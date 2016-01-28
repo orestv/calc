@@ -15,9 +15,11 @@ import thermodynamics
 class MaterialPicker(qw.QWidget):
     material_combobox = None
     material_selected = qc.pyqtSignal(params.MaterialProperties, name='materialSelected')
+    title = u'Матеріал'
 
-    def __init__(self):
+    def __init__(self, title):
         super(MaterialPicker, self).__init__()
+        self.title = title
         self.material_combobox = qw.QComboBox()
         self.init_ui()
 
@@ -31,7 +33,7 @@ class MaterialPicker(qw.QWidget):
         self.material_combobox.addItem(u'Мідь', params.MaterialProperties.COPPER)
         self.material_combobox.addItem(u'Алюміній', params.MaterialProperties.ALUMINIUM)
 
-        layout.addWidget(qw.QLabel(u'Матеріал'))
+        layout.addWidget(qw.QLabel(self.title))
         layout.addWidget(self.material_combobox)
 
     @property
@@ -135,9 +137,9 @@ class MaterialPanel(qw.QWidget):
     material_picker = None
     material_properties = None
     
-    def __init__(self):
+    def __init__(self,  title):
         super(MaterialPanel, self).__init__()
-        self.material_picker = MaterialPicker()
+        self.material_picker = MaterialPicker(title)
         self.material_properties = MaterialProperties()
 
         self.init_ui()
@@ -218,6 +220,9 @@ class CalculationParameters(qw.QWidget):
 
 
 class PlotWidget(qw.QTabWidget):
+    MODE_FIXED_TIME = "t"
+    MODE_FIXED_RADIUS = "r"
+
     pw_H = None
     pw_Q = None
     pw_F = None
@@ -233,9 +238,22 @@ class PlotWidget(qw.QTabWidget):
         self.pw_F = pyqtgraph.PlotWidget()
         self.pw_F.setBackgroundBrush(qw.QBrush(qc.Qt.white))
 
+        self.pw_H.plotItem.setLabel('left', u'H')
+        self.pw_Q.plotItem.setLabel('left', u'Q')
+        self.pw_F.plotItem.setLabel('left', u'F')
+
         self.addTab(self.pw_H, u'H')
         self.addTab(self.pw_Q, u'Q')
         self.addTab(self.pw_F, u'F')
+
+    def update_labels(self, mode):
+        label = None
+        if mode == self.MODE_FIXED_RADIUS:
+            label = u't'
+        elif mode == self.MODE_FIXED_TIME:
+            label = u'r'
+        for pw in (self.pw_H, self.pw_Q, self.pw_F):
+            pw.plotItem.setLabel('bottom', label)
 
 
 class UI(qw.QWidget):
@@ -247,11 +265,10 @@ class UI(qw.QWidget):
 
     def __init__(self):
         super(UI, self).__init__()
-        self.material_panel_1 = MaterialPanel()
-        self.material_panel_2 = MaterialPanel()
+        self.material_panel_1 = MaterialPanel(u'Внутрішній матеріал')
+        self.material_panel_2 = MaterialPanel(u'Зовнішній матеріал')
         self.calculation_parameters = CalculationParameters()
         self.button_run = qw.QPushButton(text=u'Обчислити')
-        # self.plot_widget = pyqtgraph.PlotWidget()
         self.plot_widget = PlotWidget()
 
         self.init_ui()
@@ -259,8 +276,6 @@ class UI(qw.QWidget):
     def init_ui(self):
         layout = qw.QHBoxLayout()
         self.setLayout(layout)
-
-        # self.plot_widget.setBackgroundBrush(qw.QBrush(qc.Qt.white))
 
         column_left = qw.QVBoxLayout()
 
