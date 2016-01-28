@@ -12,6 +12,63 @@ import params
 import thermodynamics
 
 
+class TabulationParameters(qw.QWidget):
+    lbl_t = None
+    inp_t = None
+
+    lbl_r = None
+    inp_r = None
+
+    rb_mode_r = None
+    rb_mode_t = None
+
+    def __init__(self):
+        super(TabulationParameters, self).__init__()
+
+        self.rb_mode_r = qw.QRadioButton(u'Фіксований радіус')
+        self.rb_mode_t = qw.QRadioButton(u'Фіксований час')
+
+        layout = qw.QVBoxLayout()
+        self.setLayout(layout)
+
+        self.lbl_t = qw.QLabel(u't')
+        self.lbl_r = qw.QLabel(u'r')
+
+        self.inp_r = qw.QDoubleSpinBox()
+        self.inp_r.setDecimals(4)
+        self.inp_r.setSingleStep(0.0001)
+        self.inp_r.setSuffix(u'м')
+
+        self.inp_t = qw.QDoubleSpinBox()
+        self.inp_t.setDecimals(2)
+        self.inp_t.setSingleStep(0.001)
+        self.inp_t.setSuffix(u'с')
+
+        layout.addWidget(self.rb_mode_r)
+        layout.addWidget(self.rb_mode_t)
+        layout.addWidget(self.inp_r)
+        layout.addWidget(self.inp_t)
+
+        def showhide_t():
+            self.lbl_t.setVisible(self.rb_mode_t.isChecked())
+            self.inp_t.setVisible(self.rb_mode_t.isChecked())
+
+        def showhide_r():
+            self.lbl_r.setVisible(self.rb_mode_r.isChecked())
+            self.inp_r.setVisible(self.rb_mode_r.isChecked())
+
+        self.rb_mode_t.toggled.connect(showhide_t)
+        self.rb_mode_r.toggled.connect(showhide_r)
+
+        self.rb_mode_r.toggle()
+        showhide_r()
+        showhide_t()
+
+    @property
+    def parameters(self):
+        return params.TabulationParameters(params.TabulationParameters.MODE_FIXED_TIME, 0)
+
+
 class MaterialPicker(qw.QWidget):
     material_combobox = None
     material_selected = qc.pyqtSignal(params.MaterialProperties, name='materialSelected')
@@ -266,6 +323,7 @@ class UI(qw.QWidget):
     material_panel_1 = None
     material_panel_2 = None
     calculation_parameters = None
+    tabulation_parameters = None
     button_run = None
     plot_widget = None
 
@@ -274,6 +332,7 @@ class UI(qw.QWidget):
         self.material_panel_1 = MaterialPanel(u'Внутрішній матеріал')
         self.material_panel_2 = MaterialPanel(u'Зовнішній матеріал')
         self.calculation_parameters = CalculationParameters()
+        self.tabulation_parameters = TabulationParameters()
         self.button_run = qw.QPushButton(text=u'Обчислити')
         self.plot_widget = PlotWidget()
 
@@ -288,6 +347,7 @@ class UI(qw.QWidget):
         column_left.addWidget(self.calculation_parameters)
         column_left.addWidget(self.material_panel_1)
         column_left.addWidget(self.material_panel_2)
+        column_left.addWidget(self.tabulation_parameters)
         column_left.addWidget(self.button_run)
 
         layout.addLayout(column_left)

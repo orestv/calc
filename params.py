@@ -64,3 +64,14 @@ class CalculationParameters(object):
         self.beta_1 = 6.9 / t_i
         self.beta_2 = 2 * self.beta_1
 
+
+class TabulationParameters(object):
+    MODE_FIXED_TIME = 't'
+    MODE_FIXED_RADIUS = 'r'
+
+    mode = None
+    value = None
+
+    def __init__(self, mode, value):
+        self.mode = mode
+        self.value = value
