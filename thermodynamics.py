@@ -189,6 +189,12 @@ class H_Calculator(object):
     def p(self, k):
         assert k in (1, 2)
 
+        a = 1
+        b = -(self.d(1) + self.d(6))
+        c = self.d(1) * self.d(6) - self.d(2) * self.d(5)
+
+        print('{0} p**2 + {1} p + {2}'.format(a, b, c))
+
         p1, p2 = solve_quadratic(1,
                                  -(self.d(1) + self.d(6)),
                                  self.d(1) * self.d(6) - self.d(2) * self.d(5))
@@ -202,13 +208,13 @@ class H_Calculator(object):
 
     def d(self, j):
         # todo: implement
-        if j in range(1, 5):
+        if j in (1, 2, 3, 4):
             layer_1 = ((self.a(1, j, 1) * self.alpha(1, 1) + 4*self.a(2, j, 1) * self.alpha(2, 1)) /
                        (self.mat_i['sigma'] * self.mat_i['mu']))
             layer_2 = ((self.a(1, j, 2) * self.alpha(1, 2) + 4*self.a(2, j, 2) * self.alpha(2, 2)) /
                        (self.mat_o['sigma'] * self.mat_o['mu']))
             return layer_1 + layer_2
-        elif j in range(5, 9):
+        elif j in (5, 6, 7, 8):
             j = j % 4 + 1
             layer_1 = ((self.a(1, j, 1) * self.alpha(2, 1) + 4*self.a(2, j, 1) * self.alpha(3, 1)) /
                        (self.mat_i['sigma'] * self.mat_i['mu']))
