@@ -375,9 +375,6 @@ class UI(qw.QWidget):
 
         calculator = thermodynamics.H_Calculator(calculation_parametrs, material_properties_1, material_properties_2)
 
-        print(calculator.p(1))
-        print(calculator.p(2))
-
         DIVISION = 20
 
         x, y = [], []

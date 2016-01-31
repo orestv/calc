@@ -7,6 +7,8 @@ import numpy as np
 
 from errors import CalculationError
 import params
+from matrix import Matrix
+
 
 def solve_quadratic(a, b, c):
         D = b**2 - 4*a*c
@@ -44,42 +46,20 @@ class H_Calculator(object):
     def build_A(self):
         r = self.parm.r
         k = self.mat_i['sigma'] / self.mat_o['sigma']
-        self.mat_A = np.matrix([
-            [np.float64(x) for x in [(r[1]**2 - r[0]**2)/2., (r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[2]**2 - r[1]**2)/2., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4.]],
-            [np.float64(x) for x in [(r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[1]**5 - r[0]**5)/5., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4., (r[2]**5 - r[1]**5)/5.]],
-            [np.float64(x) for x in [1., r[0], r[0]**2, 0, 0, 0]],
-            [np.float64(x) for x in [0, 0, 0, 1, r[2], r[2]**2]],
-            [np.float64(x) for x in [1, r[1], r[1]**2, -1, -r[1], -r[1]**2]],
-            [np.float64(x) for x in [0, 1, 2*r[1], 0, -k, -2*k*r[1]]],
+        self.mat_A = Matrix([
+            [(r[1]**2 - r[0]**2)/2., (r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[2]**2 - r[1]**2)/2., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4.],
+            [(r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[1]**5 - r[0]**5)/5., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4., (r[2]**5 - r[1]**5)/5.],
+            [1., r[0], r[0]**2, 0, 0, 0],
+            [0, 0, 0, 1, r[2], r[2]**2],
+            [1, r[1], r[1]**2, -1, -r[1], -r[1]**2],
+            [0, 1, 2*r[1], 0, -k, -2*k*r[1]],
         ])
 
-    def a(self, i, j, n):
+    def a(self, i, j):
+        assert i in (0, 1, 2)
+        assert j in (1, 2, 3, 4)
 
-        try:
-            return self._a[(i, j)]
-        except KeyError:
-            pass
-
-        if not self.mat_A_det:
-            self.mat_A_det = np.linalg.det(self.mat_A)
-
-        def minor(arr, i, j):
-            # ith row, jth column removed
-            return arr[np.array(list(range(i))+list(range(i+1,arr.shape[0])))[:,np.newaxis],
-                       np.array(list(range(j))+list(range(j+1,arr.shape[1])))]
-
-        m = minor(self.mat_A, i, j)
-
-        try:
-            self._a[(i, j)] = np.linalg.det(m) / self.mat_A_det
-        except Exception as e:
-            print("Error calculating determinant")
-            print("Det " + str(i) + "/" + str(j))
-            print(self.mat_A)
-            print(m.shape)
-            print(m)
-            raise
-        return self._a[(i, j)]
+        return self.mat_A.item(j, i+1)
 
     def H(self, n, r, t):
         return sum(
@@ -155,12 +135,12 @@ class H_Calculator(object):
 
     def C(self, i, k, n):
         assert i in (0, 1, 2)
-        return (self.a(i, 1, n) * (self.A11(k) + self.A12(k)) +
-                self.a(i, 2, n) * (self.A21(k) + self.A22(k)))
+        return (self.a(i, 1) * (self.A11(k) + self.A12(k)) +
+                self.a(i, 2) * (self.A21(k) + self.A22(k)))
 
     def A(self, i, n):
         assert i in (0, 1, 2)
-        return self.a(i, 3, n) + self.a(i, 4, n)
+        return self.a(i, 3) + self.a(i, 4)
 
     def A11(self, k):
         assert k in (1, 2)
@@ -193,8 +173,6 @@ class H_Calculator(object):
         b = -(self.d(1) + self.d(6))
         c = self.d(1) * self.d(6) - self.d(2) * self.d(5)
 
-        print('{0} p**2 + {1} p + {2}'.format(a, b, c))
-
         p1, p2 = solve_quadratic(1,
                                  -(self.d(1) + self.d(6)),
                                  self.d(1) * self.d(6) - self.d(2) * self.d(5))
@@ -209,16 +187,16 @@ class H_Calculator(object):
     def d(self, j):
         # todo: implement
         if j in (1, 2, 3, 4):
-            layer_1 = ((self.a(1, j, 1) * self.alpha(1, 1) + 4*self.a(2, j, 1) * self.alpha(2, 1)) /
+            layer_1 = ((self.a(1, j) * self.alpha(1, 1) + 4*self.a(2, j) * self.alpha(2, 1)) /
                        (self.mat_i['sigma'] * self.mat_i['mu']))
-            layer_2 = ((self.a(1, j, 2) * self.alpha(1, 2) + 4*self.a(2, j, 2) * self.alpha(2, 2)) /
+            layer_2 = ((self.a(1, j) * self.alpha(1, 2) + 4*self.a(2, j) * self.alpha(2, 2)) /
                        (self.mat_o['sigma'] * self.mat_o['mu']))
             return layer_1 + layer_2
         elif j in (5, 6, 7, 8):
             j = j % 4 + 1
-            layer_1 = ((self.a(1, j, 1) * self.alpha(2, 1) + 4*self.a(2, j, 1) * self.alpha(3, 1)) /
+            layer_1 = ((self.a(1, j) * self.alpha(2, 1) + 4*self.a(2, j) * self.alpha(3, 1)) /
                        (self.mat_i['sigma'] * self.mat_i['mu']))
-            layer_2 = ((self.a(1, j, 2) * self.alpha(2, 2) + 4*self.a(2, j, 2) * self.alpha(3, 2)) /
+            layer_2 = ((self.a(1, j) * self.alpha(2, 2) + 4*self.a(2, j) * self.alpha(3, 2)) /
                        (self.mat_o['sigma'] * self.mat_o['mu']))
             return layer_1 + layer_2
         else:
