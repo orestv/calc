@@ -2,8 +2,7 @@
 
 import cmath
 import math
-
-import numpy as np
+import decimal
 
 from errors import CalculationError
 import params
@@ -24,7 +23,6 @@ class H_Calculator(object):
     mat_o = None
 
     mat_A = None
-    mat_A_det = None
 
     _a = {}
 
@@ -46,14 +44,24 @@ class H_Calculator(object):
     def build_A(self):
         r = self.parm.r
         k = self.mat_i['sigma'] / self.mat_o['sigma']
-        self.mat_A = Matrix([
-            [(r[1]**2 - r[0]**2)/2., (r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[2]**2 - r[1]**2)/2., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4.],
-            [(r[1]**3 - r[0]**3)/3., (r[1]**4 - r[0]**4)/4., (r[1]**5 - r[0]**5)/5., (r[2]**3 - r[1]**3)/3., (r[2]**4 - r[1]**4)/4., (r[2]**5 - r[1]**5)/5.],
-            [1., r[0], r[0]**2, 0, 0, 0],
-            [0, 0, 0, 1, r[2], r[2]**2],
-            [1, r[1], r[1]**2, -1, -r[1], -r[1]**2],
-            [0, 1, 2*r[1], 0, -k, -2*k*r[1]],
-        ])
+        data = [
+            [(r[1] ** 2 - r[0] ** 2) / 2., (r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4.,
+             (r[2] ** 2 - r[1] ** 2) / 2., (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4.],
+            [(r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4., (r[1] ** 5 - r[0] ** 5) / 5.,
+             (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4., (r[2] ** 5 - r[1] ** 5) / 5.],
+            [1., r[0], r[0] ** 2, 0, 0, 0],
+            [0, 0, 0, 1, r[2], r[2] ** 2],
+            [1, r[1], r[1] ** 2, -1, -r[1], -r[1] ** 2],
+            [0, 1, 2 * r[1], 0, -k, -2 * k * r[1]],
+        ]
+
+        def fmt(x):
+            return '{:e}'.format(x)
+
+        for row in data:
+            print('\t'.join(map(fmt, row)))
+        self.mat_A = Matrix(data)
+        print("Det(A) = " + fmt(self.mat_A._det))
 
     def a(self, i, j):
         assert i in (0, 1, 2)
@@ -185,7 +193,6 @@ class H_Calculator(object):
         return (self.parm.r[n]**i - self.parm.r[n-1]**i) / float(i)
 
     def d(self, j):
-        # todo: implement
         if j in (1, 2, 3, 4):
             layer_1 = ((self.a(1, j) * self.alpha(1, 1) + 4*self.a(2, j) * self.alpha(2, 1)) /
                        (self.mat_i['sigma'] * self.mat_i['mu']))

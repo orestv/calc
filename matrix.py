@@ -15,6 +15,8 @@ class Matrix(object):
         self._det = np.linalg.det(matrix)
 
     def item(self, row, col):
+        assert row >= 1
+        assert col >= 1
         return (-1) ** (row + col) * self.minor(row, col) / self._det
 
     def minor(self, row, col):
