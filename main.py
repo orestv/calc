@@ -52,11 +52,11 @@ class TabulationParameters(qw.QWidget):
         layout.addWidget(self.inp_t)
 
         def showhide_t():
-            self.lbl_t.setVisible(self.rb_mode_t.isChecked())
+            # self.lbl_t.setVisible(self.rb_mode_t.isChecked())
             self.inp_t.setVisible(self.rb_mode_t.isChecked())
 
         def showhide_r():
-            self.lbl_r.setVisible(self.rb_mode_r.isChecked())
+            # self.lbl_r.setVisible(self.rb_mode_r.isChecked())
             self.inp_r.setVisible(self.rb_mode_r.isChecked())
 
         self.rb_mode_t.toggled.connect(showhide_t)
@@ -375,13 +375,27 @@ class UI(qw.QWidget):
 
         calculator = thermodynamics.H_Calculator(calculation_parametrs, material_properties_1, material_properties_2)
 
-        print(calculator.p(1))
-        print(calculator.p(2))
+        # print(calculator.p(1))
+        # print(calculator.p(2))
+        #
+        # print("")
+        # print("")
+        # print("List of A")
+        # print("")
+        #
+        # for n in (1, 2):
+        #     for i in (0, 1, 2):
+        #         for j in (1, 2, 3, 4):
+        #
+        #             print('{0:e}'.format(calculator.a(i, j, n)))
 
-        for i in range(3):
-            for j in range(1, 5):
-                print("a ({i}, {j}) = {a:e}".format(i=i, j=j, a=calculator.a(i, j)))
-        return
+        # for i in range(3):
+        #     for j in range(1, 5):
+        #         print("a ({i}, {j}) = {a:e}".format(i=i, j=j, a=calculator.a(i, j)))
+        #
+        # for j in range(1, 8):
+        #     print("d{0} = {1}".format(j, calculator.d(j)))
+        # return
 
         DIVISION = 20
 
@@ -396,7 +410,7 @@ class UI(qw.QWidget):
             while t < t_1:
                 h = calculator.H(1, r, t)
                 y.append(h.real)
-                x.append(r)
+                x.append(t)
                 t += delta
         else:
             r = calculation_parametrs.r[0]
@@ -408,8 +422,11 @@ class UI(qw.QWidget):
                 x.append(r)
                 r += delta
 
-        plot = self.plot_widget.plot()
-        plot.setData(y=y, x=x)
+        print(x)
+        print(y)
+
+        plot = self.plot_widget.pw_H
+        plot.getPlotItem().plot(x, y)
 
 
 if __name__ == '__main__':
