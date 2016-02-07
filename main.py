@@ -80,15 +80,24 @@ class TabulationParameters(qw.QWidget):
 
 
 class MaterialPicker(qw.QWidget):
+    ITEMS = [
+        params.MaterialProperties.STEEL,
+        params.MaterialProperties.COPPER,
+        params.MaterialProperties.ALUMINIUM,
+    ]
+
     material_combobox = None
     material_selected = qc.pyqtSignal(params.MaterialProperties, name='materialSelected')
     title = u'Матеріал'
 
-    def __init__(self, title):
+    def __init__(self, title, default_material=None):
         super(MaterialPicker, self).__init__()
         self.title = title
         self.material_combobox = qw.QComboBox()
         self.init_ui()
+        if default_material:
+            item_index = self.ITEMS.index(default_material)
+            self.material_combobox.setCurrentIndex(item_index)
 
     def init_ui(self):
         layout = qw.QHBoxLayout()
@@ -204,9 +213,9 @@ class MaterialPanel(qw.QWidget):
     material_picker = None
     material_properties = None
     
-    def __init__(self,  title):
+    def __init__(self,  title, default_material=None):
         super(MaterialPanel, self).__init__()
-        self.material_picker = MaterialPicker(title)
+        self.material_picker = MaterialPicker(title, default_material)
         self.material_properties = MaterialProperties()
 
         self.init_ui()
@@ -339,8 +348,8 @@ class UI(qw.QWidget):
 
     def __init__(self):
         super(UI, self).__init__()
-        self.material_panel_1 = MaterialPanel(u'Внутрішній матеріал')
-        self.material_panel_2 = MaterialPanel(u'Зовнішній матеріал')
+        self.material_panel_1 = MaterialPanel(u'Внутрішній матеріал', params.MaterialProperties.STEEL)
+        self.material_panel_2 = MaterialPanel(u'Зовнішній матеріал', params.MaterialProperties.COPPER)
         self.calculation_parameters = CalculationParameters()
         self.tabulation_parameters = TabulationParameters()
         self.button_run = qw.QPushButton(text=u'Обчислити')
