@@ -38,7 +38,7 @@ class TabulationParameters(qw.QWidget):
         self.inp_r.setDecimals(4)
         self.inp_r.setSingleStep(0.0001)
         self.inp_r.setSuffix(u'м')
-        self.inp_r.setValue(0.009)
+        self.inp_r.setValue(0.0085)
 
         self.inp_t = qw.QDoubleSpinBox()
         self.inp_t.setDecimals(2)
@@ -406,12 +406,12 @@ class UI(qw.QWidget):
         #     print("d{0} = {1}".format(j, calculator.d(j)))
         # return
 
-        DIVISION = 20
+        DIVISION = 200
 
         x, y = [], []
         if tabulation_parameters.mode == params.TabulationParameters.MODE_FIXED_RADIUS:
             t_0 = 0.
-            t_1 = 2.
+            t_1 = 1.
             r = tabulation_parameters.value
             delta = (t_1 - t_0) / DIVISION
 
