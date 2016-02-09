@@ -85,11 +85,11 @@ class H_Calculator(object):
             elif n == 2:
                 return self.mat_A.item(j+2, i+4)
 
-    def H(self, n, r, t):
-        return sum(
-            self.f_a(i, n, t) * (r ** i)
-            for i in (0, 1, 2)
-        )
+    def H(self, r, t):
+        n = lambda x: 1 if x < self.parm.r[1] else 2
+        arr = [self.f_a(i, n(r), t) * (r ** i)
+               for i in (0, 1, 2)]
+        return sum(arr)
 
     def f_a(self, i, n, t):
         assert i in (0, 1, 2)

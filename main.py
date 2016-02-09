@@ -41,10 +41,10 @@ class TabulationParameters(qw.QWidget):
         self.inp_r.setValue(0.0085)
 
         self.inp_t = qw.QDoubleSpinBox()
-        self.inp_t.setDecimals(2)
-        self.inp_t.setSingleStep(0.001)
+        self.inp_t.setDecimals(5)
+        self.inp_t.setSingleStep(0.00001)
         self.inp_t.setSuffix(u'с')
-        self.inp_t.setValue(0.1)
+        self.inp_t.setValue(0.00001)
 
         layout.addWidget(self.rb_mode_r)
         layout.addWidget(self.rb_mode_t)
@@ -417,7 +417,7 @@ class UI(qw.QWidget):
 
             t = t_0
             while t < t_1:
-                h = calculator.H(1, r, t)
+                h = calculator.H(r, t)
                 y.append(h.real)
                 x.append(t)
                 t += delta
@@ -426,7 +426,7 @@ class UI(qw.QWidget):
             delta = (calculation_parametrs.r[2] - calculation_parametrs.r[0]) / DIVISION
 
             while r < calculation_parametrs.r[2]:
-                h = calculator.H(1, r, tabulation_parameters.value)
+                h = calculator.H(r, tabulation_parameters.value)
                 y.append(h.real)
                 x.append(r)
                 r += delta
