@@ -406,12 +406,12 @@ class UI(qw.QWidget):
         #     print("d{0} = {1}".format(j, calculator.d(j)))
         # return
 
-        DIVISION = 200
+        DIVISION = 250
 
         x, y = [], []
         if tabulation_parameters.mode == params.TabulationParameters.MODE_FIXED_RADIUS:
             t_0 = 0.
-            t_1 = 1.
+            t_1 = calculation_parametrs.t_i * 1.5
             r = tabulation_parameters.value
             delta = (t_1 - t_0) / DIVISION
 
@@ -435,7 +435,9 @@ class UI(qw.QWidget):
         print(y)
 
         plot = self.plot_widget.pw_H
-        plot.getPlotItem().plot(x, y)
+        pi = plot.getPlotItem()
+        pi.clearPlots()
+        pi.plot(x, y)
 
 
 if __name__ == '__main__':
