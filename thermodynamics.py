@@ -283,10 +283,11 @@ class QF_Calculator(object):
             20: 2 * self.h.p(2),
         }
 
-    def Q(self, r, t, n):
-        q = self.parm.k_0**2 * self.parm.H_0**2 / (self.prop[n].sigma * 4)
+    def Q(self, r, t):
+        n = lambda x: 1 if r < self.parm.r[1] else 2
+        q = self.parm.k_0**2 * self.parm.H_0**2 / (self.prop[n(r)].sigma * 4)
         q *= sum((
-            i*j*self.C(l, i, j, n) * cmath.exp(self.alpha(l)*t) * math.pow(r, i+j-2)
+            i*j*self.C(l, i, j, n(r)) * cmath.exp(self.alpha(l)*t) * math.pow(r, i+j-2)
 
             for i in (1, 2)
             for j in (1, 2)
@@ -295,10 +296,11 @@ class QF_Calculator(object):
 
         return 1
 
-    def F(self, r, t, n):
-        f = - self.prop[n].mu * self.parm.k_0**2 * self.parm.H_0**2 / 4
+    def F(self, r, t):
+        n = lambda x: 1 if r < self.parm.r[1] else 2
+        f = - self.prop[n(r)].mu * self.parm.k_0**2 * self.parm.H_0**2 / 4
         f *= sum((
-            i * self.C(l, i, j, n) * cmath.exp(self.alpha(l) * t) * math.pow(r, i+j-1)
+            i * self.C(l, i, j, n(r)) * cmath.exp(self.alpha(l) * t) * math.pow(r, i+j-1)
 
             for i in (1, 2)
             for j in (1, 2)
