@@ -24,6 +24,9 @@ class H_Calculator(object):
 
     mat_A = None
 
+    _p = None
+    _d = []
+
     _a = {}
 
     def __init__(self, calculation_parameters, material_inner, material_outer):
@@ -63,27 +66,37 @@ class H_Calculator(object):
         self.mat_A = Matrix(data)
         print("Det(A) = " + fmt(self.mat_A._det))
 
-    def a_ij(self, i, j):
-        assert i in (0, 1, 2)
-        assert j in (1, 2, 3, 4)
-
-        return self.mat_A.item(j, i+1)
-
     def a(self, i, j, n):
         assert i in (0, 1, 2)
         assert j in (1, 2, 3, 4)
         assert n in (1, 2)
 
-        if j in (1, 2):
-            if n == 1:
-                return self.mat_A.item(j, i+1)
-            elif n == 2:
-                return self.mat_A.item(j, i+4)
-        elif j in (3, 4):
-            if n == 1:
-                return self.mat_A.item(j+2, i+1)
-            elif n == 2:
-                return self.mat_A.item(j+2, i+4)
+        try:
+            return self._a[(i, j, n)]
+        except KeyError:
+            pass
+        jd = (4, 3, 1, 2)
+        j = jd[j-1]
+
+        row = j
+        col = 1 + i + 3 * (n-1)
+
+        item = self.mat_A.item(row, col)
+        self._a[(i, j, n)] = item
+        return item
+
+
+
+        # if j in (1, 2):
+        #     if n == 1:
+        #         return self.mat_A.item(j, i+1)
+        #     elif n == 2:
+        #         return self.mat_A.item(j, i+4)
+        # elif j in (3, 4):
+        #     if n == 1:
+        #         return self.mat_A.item(j+2, i+1)
+        #     elif n == 2:
+        #         return self.mat_A.item(j+2, i+4)
 
     def H(self, r, t):
         n = lambda x: 1 if x < self.parm.r[1] else 2
@@ -200,45 +213,51 @@ class H_Calculator(object):
         # print("Quadratic equation: ")
         # print('a, b, c == {a:e}, {b:e}, {c:e}'.format(a=a, b=b, c=c))
 
-        p1, p2 = solve_quadratic(1,
-                                 -(self.d(1) + self.d(6)),
-                                 self.d(1) * self.d(6) - self.d(2) * self.d(5))
-        if k == 1:
-            return p1
-        elif k == 2:
-            return p2
+        if not self._p:
+            self._p = solve_quadratic(1,
+                                     -(self.d(1) + self.d(6)),
+                                     self.d(1) * self.d(6) - self.d(2) * self.d(5))
+
+        return self._p[k-1]
+        # if k == 1:
+        #     return p1
+        # elif k == 2:
+        #     return p2
 
     def alpha(self, i, n):
         return (self.parm.r[n]**i - self.parm.r[n-1]**i) / float(i)
 
     def d(self, j):
-        arr = [-14964970.1695227,
-               1569092065.69423,
-               14.9639589435456,
-               -0.833471911731994,
-               -124977.635865608,
-               13086357.116585,
-               0.126968410318618,
-               -0.00608505570217171]
-        return arr[j-1]
+        # arr = [-14964970.1695227,
+        #        1569092065.69423,
+        #        14.9639589435456,
+        #        -0.833471911731994,
+        #        -124977.635865608,
+        #        13086357.116585,
+        #        0.126968410318618,
+        #        -0.00608505570217171]
+        # return arr[j-1]
 
-        sigma = (0, self.mat_i['sigma'], self.mat_o['sigma'])
-        mu = (0, self.mat_i['mu'], self.mat_o['mu'])
-        if j in (1, 2, 3, 4):
-            return sum((
-                (self.a(1, j, n) * self.alpha(1, n) + 4*self.a(2, j, n) * self.alpha(2, n)) /
-                (sigma[n] * mu[n])
-                for n in (1, 2)
-            ))
-        elif j in (5, 6, 7, 8):
-            j = j % 4 + 1
-            return sum((
-                (self.a(1, j, n) * self.alpha(2, n) + 4*self.a(2, j, n) * self.alpha(3, n)) /
-                (sigma[n] * mu[n])
-                for n in (1, 2)
-            ))
-        else:
-            raise CalculationError("Failed to calculate d({0})".format(j))
+        if not self._d:
+            for _j in range(1, 9):
+                sigma = (0, self.mat_i['sigma'], self.mat_o['sigma'])
+                mu = (0, self.mat_i['mu'], self.mat_o['mu'])
+                if _j in (1, 2, 3, 4):
+                    self._d.append(sum((
+                        (self.a(1, _j, n) * self.alpha(1, n) + 4 * self.a(2, _j, n) * self.alpha(2, n)) /
+                        (sigma[n] * mu[n])
+                        for n in (1, 2))
+                    ))
+                elif _j in (5, 6, 7, 8):
+                    _j = _j % 4 + 1
+                    self._d.append(sum((
+                        (self.a(1, _j, n) * self.alpha(2, n) + 4 * self.a(2, _j, n) * self.alpha(3, n)) /
+                        (sigma[n] * mu[n])
+                        for n in (1, 2))
+                    ))
+                else:
+                    raise CalculationError("Failed to calculate d({0})".format(_j))
+        return self._d[j-1]
 
 
 class QF_Calculator(object):
