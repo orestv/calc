@@ -392,11 +392,14 @@ class UI(qw.QWidget):
         # print("List of A")
         # print("")
         #
+
         # for n in (1, 2):
         #     for i in (0, 1, 2):
         #         for j in (1, 2, 3, 4):
+        #             print('{i}/{j}/{n} {a:e}'.format(i=i, j=j, n=n, a=calculator.a(i, j, n)))
         #
-        #             print('{0:e}'.format(calculator.a(i, j, n)))
+        # print(calculator.p(1), calculator.p(2))
+        # return
 
         # for i in range(3):
         #     for j in range(1, 5):
