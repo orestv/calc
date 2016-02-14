@@ -382,7 +382,8 @@ class UI(qw.QWidget):
         calculation_parametrs = self.calculation_parameters.parameters
         tabulation_parameters = self.tabulation_parameters.parameters
 
-        calculator = thermodynamics.H_Calculator(calculation_parametrs, material_properties_1, material_properties_2)
+        h = thermodynamics.H_Calculator(calculation_parametrs, material_properties_1, material_properties_2)
+        qf = thermodynamics.QF_Calculator(h, (material_properties_1, material_properties_2))
 
         # print(calculator.p(1))
         # print(calculator.p(2))
@@ -411,7 +412,8 @@ class UI(qw.QWidget):
 
         DIVISION = 250
 
-        x, y = [], []
+        r_t = []
+        x = []
         if tabulation_parameters.mode == params.TabulationParameters.MODE_FIXED_RADIUS:
             t_0 = 0.
             t_1 = calculation_parametrs.t_i * 1.5
@@ -420,27 +422,32 @@ class UI(qw.QWidget):
 
             t = t_0
             while t < t_1:
-                h = calculator.H(r, t)
-                y.append(h.real)
+                r_t.append((r, t))
                 x.append(t)
                 t += delta
-        else:
+        elif tabulation_parameters.mode == params.TabulationParameters.MODE_FIXED_TIME:
             r = calculation_parametrs.r[0]
             delta = (calculation_parametrs.r[2] - calculation_parametrs.r[0]) / DIVISION
 
             while r < calculation_parametrs.r[2]:
-                h = calculator.H(r, tabulation_parameters.value)
-                y.append(h.real)
+                r_t.append((r, tabulation_parameters.value))
                 x.append(r)
                 r += delta
 
-        print(x)
-        print(y)
+        h_y, q_y, f_y = [], [], []
+        for r, t in r_t:
+            h_y.append(h.H(r, t).real)
+            q_y.append(qf.Q(r, t).real)
+            f_y.append(qf.F(r, t).real)
 
-        plot = self.plot_widget.pw_H
-        pi = plot.getPlotItem()
-        pi.clearPlots()
-        pi.plot(x, y)
+        def set_plot_data(plot_widget, x, y):
+            pi_H = plot_widget.getPlotItem()
+            pi_H.clearPlots()
+            pi_H.plot(x, y)
+
+        set_plot_data(self.plot_widget.pw_H, x, h_y)
+        set_plot_data(self.plot_widget.pw_Q, x, q_y)
+        set_plot_data(self.plot_widget.pw_F, x, f_y)
 
 
 if __name__ == '__main__':
