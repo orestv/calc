@@ -289,7 +289,9 @@ class QF_Calculator(object):
         """
         self.h = h_calculator
         self.parm = self.h.parm
-        self.prop = properties
+        # eliminate n=0
+        self.prop = [None]
+        self.prop.extend(list(properties))
 
         self.alphas= {
             1: -2 * (self.parm.beta_1 - self.parm.omega * 1j),
@@ -316,7 +318,7 @@ class QF_Calculator(object):
 
     def Q(self, r, t):
         n = lambda x: 1 if r < self.parm.r[1] else 2
-        q = self.parm.k_0**2 * self.parm.H_0**2 / (self.prop[n(r)].sigma * 4)
+        q = self.parm.k_0**2 * self.parm.H_0**2 / (self.prop[n(r)]['sigma'] * 4)
         q *= sum((
             i*j*self.C(l, i, j, n(r)) * cmath.exp(self.alpha(l)*t) * math.pow(r, i+j-2)
 
@@ -329,7 +331,7 @@ class QF_Calculator(object):
 
     def F(self, r, t):
         n = lambda x: 1 if r < self.parm.r[1] else 2
-        f = - self.prop[n(r)].mu * self.parm.k_0**2 * self.parm.H_0**2 / 4
+        f = - self.prop[n(r)]['mu'] * self.parm.k_0**2 * self.parm.H_0**2 / 4
         f *= sum((
             i * self.C(l, i, j, n(r)) * cmath.exp(self.alpha(l) * t) * math.pow(r, i+j-1)
 
@@ -434,6 +436,7 @@ class T_Calculator(object):
         return m_1 + m_2
 
     def N(self, k, i, j, l):
+        # todo: check layers
         if k == 1:
             n1 = ((self.prop[0].k + (self.parm.r[1] ** (i + j) - self.parm.r[0] ** (i + j))) * self.qf.C(i, j, l, 1) /
                     (self.prop[0].sigma * self.prop[0]['lambda'] * (i + j)))
