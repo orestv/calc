@@ -326,8 +326,7 @@ class QF_Calculator(object):
             for j in (1, 2)
             for l in range(1, 21)
         ))
-
-        return 1
+        return q
 
     def F(self, r, t):
         n = lambda x: 1 if r < self.parm.r[1] else 2
