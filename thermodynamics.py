@@ -394,6 +394,8 @@ class T_Calculator(object):
     prop = None
     qf = None
 
+    mat_B = None
+
     def __init__(self, qf_calculator, parameters, properties):
         """
         :type parameters: params.CalculationParameters
@@ -407,12 +409,30 @@ class T_Calculator(object):
         self.parm = parameters
         self.prop = properties
 
+        self.build_mat_b()
+
     def T(self, r, t, n):
         return sum((
             self.b_f(t, p, n) * math.pow(r, p)
 
             for p in (0, 1, 2)
         ))
+
+    def build_mat_b(self):
+        r = self.parm.r
+        k = self.prop[0]['sigma'] / self.prop[1]['sigma']
+        data = [
+            [(r[1] ** 2 - r[0] ** 2) / 2., (r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4.,
+             (r[2] ** 2 - r[1] ** 2) / 2., (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4.],
+            [(r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4., (r[1] ** 5 - r[0] ** 5) / 5.,
+             (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4., (r[2] ** 5 - r[1] ** 5) / 5.],
+            [1., r[0], r[0] ** 2, 0, 0, 0],
+            [0, 0, 0, 1, r[2], r[2] ** 2],
+            [1, r[1], r[1] ** 2, -1, -r[1], -r[1] ** 2],
+            [0, 1, 2 * r[1], 0, -k, -2 * k * r[1]],
+        ]
+        self.mat_B = Matrix(data)
+        pass
 
     def b_f(self, t, p, n):
         b = self.parm.k_0**2 * self.parm.H_0**2 / 4
@@ -462,6 +482,11 @@ class T_Calculator(object):
         return 0
 
     def b(self, i, j, n):
+        assert i in (1, 2)
+        assert j in (1, 2, 3, 4)
+        assert n in (1, 2)
+
+        # row =
         # todo: implement
         return 0
 
