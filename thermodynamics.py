@@ -25,7 +25,7 @@ class H_Calculator(object):
     mat_A = None
 
     _p = None
-    _d = []
+    _d = {}
 
     _a = {}
 
@@ -47,28 +47,28 @@ class H_Calculator(object):
     def build_A(self):
         r = self.parm.r
         k = self.mat_i['sigma'] / self.mat_o['sigma']
-        # data = [
-        #     [(r[1] ** 2 - r[0] ** 2) / 2., (r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4.,
-        #      (r[2] ** 2 - r[1] ** 2) / 2., (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4.],
-        #     [(r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4., (r[1] ** 5 - r[0] ** 5) / 5.,
-        #      (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4., (r[2] ** 5 - r[1] ** 5) / 5.],
-        #     [1., r[0], r[0] ** 2, 0, 0, 0],
-        #     [0, 0, 0, 1, r[2], r[2] ** 2],
-        #     [1, r[1], r[1] ** 2, -1, -r[1], -r[1] ** 2],
-        #     [0, 1, 2 * r[1], 0, -k, -2 * k * r[1]],
-        # ]
-
-        # reordered for compliance with pre-calculated values
         data = [
-            [0, 0, 0, 1, r[2], r[2] ** 2],
-            [1., r[0], r[0] ** 2, 0, 0, 0],
             [(r[1] ** 2 - r[0] ** 2) / 2., (r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4.,
              (r[2] ** 2 - r[1] ** 2) / 2., (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4.],
             [(r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4., (r[1] ** 5 - r[0] ** 5) / 5.,
              (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4., (r[2] ** 5 - r[1] ** 5) / 5.],
+            [1., r[0], r[0] ** 2, 0, 0, 0],
+            [0, 0, 0, 1, r[2], r[2] ** 2],
             [1, r[1], r[1] ** 2, -1, -r[1], -r[1] ** 2],
             [0, 1, 2 * r[1], 0, -k, -2 * k * r[1]],
         ]
+
+        # reordered for compliance with pre-calculated values
+        # data = [
+        #     [0, 0, 0, 1, r[2], r[2] ** 2],
+        #     [1., r[0], r[0] ** 2, 0, 0, 0],
+        #     [(r[1] ** 2 - r[0] ** 2) / 2., (r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4.,
+        #      (r[2] ** 2 - r[1] ** 2) / 2., (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4.],
+        #     [(r[1] ** 3 - r[0] ** 3) / 3., (r[1] ** 4 - r[0] ** 4) / 4., (r[1] ** 5 - r[0] ** 5) / 5.,
+        #      (r[2] ** 3 - r[1] ** 3) / 3., (r[2] ** 4 - r[1] ** 4) / 4., (r[2] ** 5 - r[1] ** 5) / 5.],
+        #     [1, r[1], r[1] ** 2, -1, -r[1], -r[1] ** 2],
+        #     [0, 1, 2 * r[1], 0, -k, -2 * k * r[1]],
+        # ]
 
         def fmt(x):
             return '{:e}'.format(x)
@@ -218,19 +218,15 @@ class H_Calculator(object):
     def p(self, k):
         assert k in (1, 2)
 
-        a = 1
-        b = -(self.d(1) + self.d(6))
-        c = self.d(1) * self.d(6) - self.d(2) * self.d(5)
-
-        # print("Quadratic equation: ")
-        # print('a, b, c == {a:e}, {b:e}, {c:e}'.format(a=a, b=b, c=c))
-
         if not self._p:
-            self._p = solve_quadratic(1,
+            self._p = {}
+            x1, x2 = solve_quadratic(1,
                                      -(self.d(1) + self.d(6)),
-                                     self.d(1) * self.d(6) - self.d(2) * self.d(5))
+                                     self.d(1) * self.d(6) + self.d(2) * self.d(5))
+            self._p[1] = x1
+            self._p[2] = x2
 
-        return self._p[k-1]
+        return self._p[k]
         # if k == 1:
         #     return p1
         # elif k == 2:
@@ -255,21 +251,21 @@ class H_Calculator(object):
                 sigma = (0, self.mat_i['sigma'], self.mat_o['sigma'])
                 mu = (0, self.mat_i['mu'], self.mat_o['mu'])
                 if _j in (1, 2, 3, 4):
-                    self._d.append(sum((
-                        (self.a(1, _j, n) * self.alpha(1, n) + 4 * self.a(2, _j, n) * self.alpha(2, n)) /
+                    val = sum((self.a(1, _j, n) * self.alpha(1, n) + 4 * self.a(2, _j, n) * self.alpha(2, n)) /
                         (sigma[n] * mu[n])
                         for n in (1, 2))
-                    ))
+                    self._d[_j] = val
                 elif _j in (5, 6, 7, 8):
-                    _j = _j % 4 + 1
-                    self._d.append(sum((
-                        (self.a(1, _j, n) * self.alpha(2, n) + 4 * self.a(2, _j, n) * self.alpha(3, n)) /
+                    _j1 = _j % 4 + 1
+                    val = (sum((
+                        (self.a(1, _j1, n) * self.alpha(2, n) + 4 * self.a(2, _j1, n) * self.alpha(3, n)) /
                         (sigma[n] * mu[n])
                         for n in (1, 2))
                     ))
+                    self._d[_j] = val
                 else:
                     raise CalculationError("Failed to calculate d({0})".format(_j))
-        return self._d[j-1]
+        return self._d[j]
 
 
 class QF_Calculator(object):

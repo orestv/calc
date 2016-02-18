@@ -385,8 +385,18 @@ class UI(qw.QWidget):
         h = thermodynamics.H_Calculator(calculation_parametrs, material_properties_1, material_properties_2)
         qf = thermodynamics.QF_Calculator(h, (material_properties_1, material_properties_2))
 
-        # print(calculator.p(1))
-        # print(calculator.p(2))
+        print (h.p(1), h.p(2))
+
+        print(h.d(1))
+        print(h._d)
+
+        # return
+        # for i in range(1, 9):
+        #     print(h.d(i))
+        #
+        # print(h.p(1))
+        # print(h.p(2))
+        # return
         #
         # print("")
         # print("")
